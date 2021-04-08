@@ -27,8 +27,8 @@ export default {
   data() {
     return {
       form: {
-        username: "",
-        password: "",
+        username: "admin",
+        password: "123456",
       },
       rules: {
         username: [
@@ -74,6 +74,10 @@ export default {
           this.$message.error(res.meta.msg);
         } else {
           this.$message.success("登录成功")
+          // 将 tooken 保存到客户端的 sessionStorage
+          window.sessionStorage.setItem("token", res.data.token)
+          // 通过编程式导航到后台主页
+          this.$router.push("/home")
         }
       });
     },
