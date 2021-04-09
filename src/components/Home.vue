@@ -18,16 +18,16 @@
       el-menu-item-group:分组展示
         - 使用el-menu-item 进行标记
       -->
-      <el-aside width="200px">
+      <el-aside :width="iscollpase? 'auto':'200px'">
+        <div class="toggleButton" @click="toggleCallapse">|||</div>
+        <!--             侧边栏菜单区域-->
         <el-menu
+          :collapse="iscollpase"
+          :collapse-transition='false'
           :unique-opened="true"
           background-color="#353545"
           text-color="#fff"
           active-text-color="#409eff">
-          <el-menu-item index="0">
-            <i class="el-icon-s-home"></i>
-            <span>首页</span>
-          </el-menu-item>
           <!--   一级菜单-->
           <el-submenu :index="item.id+''" v-for="item in menulist" :key="item.id">
             <!--            菜单的模版区域-->
@@ -56,6 +56,7 @@ export default {
   },
   data() {
     return {
+      iscollpase: false,
       menulist: [],
       iconMap: {
         125: 'iconfont icon-user',
@@ -78,6 +79,10 @@ export default {
       console.log(res);
       if (res.meta.status !== 200) return this.$message.error('菜单获取失败');
       this.menulist = res.data;
+    },
+    // 点击按钮切换菜单折叠与展开
+    toggleCallapse() {
+      this.iscollpase = !this.iscollpase;
     }
   }
 };
@@ -113,6 +118,16 @@ export default {
 
   .el-aside {
     background-color: #333744;
+
+    .toggleButton {
+      background-color: #585166;
+      color: #ffffff;
+      font-size: 10px;
+      line-height: 24px;
+      text-align: center;
+      letter-spacing: 0.5em;
+      cursor: pointer;
+    }
 
     // 隐藏展开后的一像素 border
     .el-menu {
