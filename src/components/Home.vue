@@ -23,6 +23,7 @@
         <div class="toggleButton" @click="toggleCallapse">|||</div>
         <!--             侧边栏菜单区域-->
         <el-menu
+          :router="true"
           :collapse="iscollpase"
           :collapse-transition='false'
           :unique-opened="true"
@@ -37,7 +38,7 @@
               <span v-text="item.authName">一级菜单栏</span>
             </template>
             <el-menu-item v-show="item.children !== null" v-for="subitem in item.children" :key="subitem.id"
-                          :index="subitem.id.toString()">
+                          :index="'/'+subitem.path.toString()">
               <i class="el-icon-s-grid"></i>
               <span v-text="subitem.authName">二级菜单</span>
             </el-menu-item>
