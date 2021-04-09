@@ -22,23 +22,22 @@
         <el-menu
           background-color="#353545"
           text-color="#fff"
-          active-text-color="#ffd04b">
-          <el-menu-item index="1">
+          active-text-color="#409eff">
+          <el-menu-item index="0">
             <i class="el-icon-s-home"></i>
             <span>首页</span>
           </el-menu-item>
           <!--   一级菜单-->
-          <el-submenu index="2">
+          <el-submenu :index="item.id+''" v-for="item in menulist" :key="item.id">
             <!--            菜单的模版区域-->
             <template slot="title">
-              <!-- 图标-->
-              <i class="el-icon-location"></i>
-              <!--              文本-->
-              <span>一级菜单栏</span>
+              <i :class="iconMap[item.id]"></i>
+              <span v-text="item.authName">一级菜单栏</span>
             </template>
-            <el-menu-item>
-              <i></i>
-              <span></span>
+            <el-menu-item v-show="item.children !== null" v-for="subitem in item.children" :key="subitem.id"
+                          :index="subitem.id.toString()">
+              <i class="el-icon-s-grid"></i>
+              <span v-text="subitem.authName">二级菜单</span>
             </el-menu-item>
           </el-submenu>
         </el-menu>
@@ -51,14 +50,33 @@
 
 <script>
 export default {
+  created() {
+    this.getMenuList();
+  },
   data() {
-    return {};
+    return {
+      menulist: [],
+      iconMap: {
+        125: 'iconfont icon-user',
+        103: 'iconfont icon-tijikongjian',
+        101: 'iconfont icon-shangpin',
+        102: 'iconfont icon-danju',
+        145: 'iconfont icon-baobiao'
+      }
+    };
   },
   methods: {
     logout() {
       // 清理 token 返回登录页面
       window.sessionStorage.clear();
       this.$router.push('/login');
+    },
+    // 获取所有的菜单
+    async getMenuList() {
+      const { data: res } = await this.$http.get('menus');
+      console.log(res);
+      if (res.meta.status !== 200) return this.$message.error('菜单获取失败');
+      this.menulist = res.data;
     }
   }
 };
@@ -98,5 +116,9 @@ export default {
 
   .el-main {
     background-color: #dddddd;
+  }
+
+  .iconfont{
+    margin-right: 15px;
   }
 </style>
