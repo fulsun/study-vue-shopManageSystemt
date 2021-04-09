@@ -8,16 +8,15 @@
 <script>
 export default {
   data() {
-    return {}
+    return {};
   },
   methods: {
     logout() {
       // 清理 token 返回登录页面
-      window.sessionStorage.clear()
-      this.$router.push("/login")
+      window.sessionStorage.clear();
+      this.$router.push('/login');
     }
   }
-}
+};
 </script>
-<style lang="less" scoped>
-</style>
+<style lang="less" scoped></style>

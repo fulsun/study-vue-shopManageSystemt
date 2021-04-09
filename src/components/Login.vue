@@ -2,20 +2,37 @@
   <div class="login_container">
     <div class="login_box">
       <div class="avatar_box">
-        <img src="../assets/logo.png" alt=""/>
+        <img src="../assets/logo.png" alt="" />
       </div>
       <!-- 登录表单区域 -->
-      <el-form ref="loginFormRef" label-width="0px" class="login_form" :model="form" :rules="rules">
+      <el-form
+        ref="loginFormRef"
+        label-width="0px"
+        class="login_form"
+        :model="form"
+        :rules="rules"
+      >
         <el-form-item prop="username">
-          <el-input clearable prefix-icon="iconfont icon-user" v-model="form.username"></el-input>
+          <el-input
+            clearable
+            prefix-icon="iconfont icon-user"
+            v-model="form.username"
+          ></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input prefix-icon="iconfont icon-3702mima" v-model="form.password" show-password></el-input>
+          <el-input
+            prefix-icon="iconfont icon-3702mima"
+            v-model="form.password"
+            show-password
+          ></el-input>
         </el-form-item>
         <!-- 按钮区域 -->
         <el-form-item class="btns">
-          <el-button type="primary" @click="login('loginFormRef')">登录</el-button>
-          <el-button type="info" @click="resetLoginForm('loginFormRef')">重置</el-button>
+          <el-button type="primary" @click="login('loginFormRef')"
+          >登录
+          </el-button>
+          <el-button type="info" @click="resetLoginForm('loginFormRef')">重置
+          </el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -27,37 +44,37 @@ export default {
   data() {
     return {
       form: {
-        username: "admin",
-        password: "123456",
+        username: 'admin',
+        password: '123456'
       },
       rules: {
         username: [
           {
             required: true,
-            message: "请填写用户名",
-            trigger: "blur"
+            message: '请填写用户名',
+            trigger: 'blur'
           },
           {
             min: 3,
             max: 10,
-            message: "长度在 3 到 10 个字符",
-            trigger: "blur",
-          },
+            message: '长度在 3 到 10 个字符',
+            trigger: 'blur'
+          }
         ],
         password: [
           {
             required: true,
-            message: "请填写密码",
-            trigger: "blur"
+            message: '请填写密码',
+            trigger: 'blur'
           },
           {
             min: 3,
             max: 10,
-            message: "长度在 3 到 10 个字符",
-            trigger: "blur",
-          },
-        ],
-      },
+            message: '长度在 3 到 10 个字符',
+            trigger: 'blur'
+          }
+        ]
+      }
     };
   },
   methods: {
@@ -66,22 +83,22 @@ export default {
     },
     login(formName) {
       // 表单提交前预校验规则，
-      this.$refs[formName].validate(async (valid) => {
+      this.$refs[formName].validate(async(valid) => {
         if (!valid) return false;
         // 从返回的结构中获取 data 数据放到变量名 res 中
-        const { data: res } = await this.$http.post("login", this.form);
+        const { data: res } = await this.$http.post('login', this.form);
         if (res.meta.status !== 200) {
           this.$message.error(res.meta.msg);
         } else {
-          this.$message.success("登录成功")
+          this.$message.success('登录成功');
           // 将 tooken 保存到客户端的 sessionStorage
-          window.sessionStorage.setItem("token", res.data.token)
+          window.sessionStorage.setItem('token', res.data.token);
           // 通过编程式导航到后台主页
-          this.$router.push("/home")
+          this.$router.push('/home');
         }
       });
-    },
-  },
+    }
+  }
 };
 </script>
 
