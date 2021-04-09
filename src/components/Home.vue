@@ -20,6 +20,7 @@
       -->
       <el-aside width="200px">
         <el-menu
+          :unique-opened="true"
           background-color="#353545"
           text-color="#fff"
           active-text-color="#409eff">
@@ -112,13 +113,18 @@ export default {
 
   .el-aside {
     background-color: #333744;
+
+    // 隐藏展开后的一像素 border
+    .el-menu {
+      border-right: none;
+    }
   }
 
   .el-main {
     background-color: #dddddd;
   }
 
-  .iconfont{
+  .iconfont {
     margin-right: 15px;
   }
 </style>
