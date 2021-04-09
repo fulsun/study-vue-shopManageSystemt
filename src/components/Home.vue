@@ -18,6 +18,7 @@
       el-menu-item-group:分组展示
         - 使用el-menu-item 进行标记
       -->
+      <!-- collapse-transition='true' 是否开启折叠动画 -->
       <el-aside :width="iscollpase? 'auto':'200px'">
         <div class="toggleButton" @click="toggleCallapse">|||</div>
         <!--             侧边栏菜单区域-->
@@ -44,7 +45,10 @@
         </el-menu>
       </el-aside>
       <!--        内容区-->
-      <el-main>Main</el-main>
+      <el-main>
+        <!-- 路由占位符-->
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
