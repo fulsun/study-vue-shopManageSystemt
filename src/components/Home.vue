@@ -23,6 +23,7 @@
         <div class="toggleButton" @click="toggleCallapse">|||</div>
         <!--             侧边栏菜单区域-->
         <el-menu
+          :default-active="$route.path"
           :router="true"
           :collapse="iscollpase"
           :collapse-transition='false'
