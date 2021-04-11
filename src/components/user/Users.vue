@@ -19,10 +19,56 @@
           <el-button type="primary"> 添加用户</el-button>
         </el-col>
       </el-row>
+      <el-table :data="userList" stripe border>
+        <el-table-column type="index" label="#"></el-table-column>
+        <el-table-column prop="username" label="姓名" sortable></el-table-column>
+        <el-table-column prop="email" label="邮箱"></el-table-column>
+        <el-table-column prop="mobile" label="手机号"></el-table-column>
+        <el-table-column prop="role_name" label="角色名"></el-table-column>
+        <el-table-column label="状态">
+          <!-- slot-scope="scope"   v-model="scope.row.mg_state" -->
+          <template v-slot:default="slotprops">
+            <el-switch
+              v-model="slotprops.row.mg_state">
+              disabled>
+            </el-switch>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="auto">
+          <template v-slot="slot">
+            <el-button type="primary" icon="el-icon-edit" round size="mini">{{slot.row.id}}</el-button>
+            <el-button type="danger" icon="el-icon-delete" round size="mini"></el-button>
+            <el-tooltip effect="light" content="分配角色" placement="top" :enterable="false">
+              <el-button type="warning" icon="el-icon-setting" round size="mini"></el-button>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+      </el-table>
     </el-card>
   </div>
 </template>
-
+<script>
+export default {
+  data() {
+    return {
+      userList: []
+    };
+  },
+  created() {
+    this.getUserList();
+  },
+  methods: {
+    async getUserList() {
+      const { data: res } = await this.$http.get('/users?pagenum=1&pagesize=10');
+      if (res.meta.status !== 200) return this.$message.error('用户列表获取失败');
+      this.userList = res.data.users;
+    }
+  }
+}
+;
+</script>
 <style lang="less" scoped>
-
+  .el-table {
+    margin-top: 20px;
+  }
 </style>
