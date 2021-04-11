@@ -44,6 +44,16 @@
           </template>
         </el-table-column>
       </el-table>
+      <el-pagination
+        background
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="queryInfo.pagenum"
+        :page-sizes="[1, 2, 50, 100]"
+        :page-size="queryInfo.pagesize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total">
+      </el-pagination>
     </el-card>
   </div>
 </template>
@@ -51,7 +61,12 @@
 export default {
   data() {
     return {
-      userList: []
+      userList: [],
+      queryInfo: {
+        pagenum: 1,
+        pagesize: 1
+      },
+      total: 0
     };
   },
   created() {
@@ -59,9 +74,20 @@ export default {
   },
   methods: {
     async getUserList() {
-      const { data: res } = await this.$http.get('/users?pagenum=1&pagesize=10');
+      const { data: res } = await this.$http.get('/users', {
+        params: this.queryInfo
+      });
       if (res.meta.status !== 200) return this.$message.error('用户列表获取失败');
       this.userList = res.data.users;
+      this.total = res.data.total;
+    },
+    handleSizeChange(newSize) {
+      this.queryInfo.pagesize = newSize;
+      this.getUserList();
+    },
+    handleCurrentChange(newPage) {
+      this.queryInfo.pagenum = newPage;
+      this.getUserList();
     }
   }
 }
@@ -70,5 +96,8 @@ export default {
 <style lang="less" scoped>
   .el-table {
     margin-top: 20px;
+  }
+  .el-pagination{
+    margin-top: 15px;
   }
 </style>
