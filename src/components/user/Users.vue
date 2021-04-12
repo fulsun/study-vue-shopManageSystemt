@@ -77,7 +77,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
     <el-button @click="dialogVisible = false">取 消</el-button>
-    <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+    <el-button type="primary" @click="addUser">确 定</el-button>
   </span>
     </el-dialog>
   </div>
@@ -211,8 +211,18 @@ export default {
     addDiglogClosed() {
       // 重置表单
       this.$refs.addFormRef.resetFields();
+    },
+    addUser() {
+      this.$refs.addFormRef.validate(async(valiate) => {
+        if (!valiate) return;
+        // 预校验通过
+        const { data: res } = await this.$http.post('users', this.addForm);
+        if (res.meta.status !== 201) return this.$message.error(res.meta.msg);
+        this.dialogVisible = false;
+        this.$message.success('添加成功');
+        this.getUserList();
+      });
     }
-
   }
 }
 ;
