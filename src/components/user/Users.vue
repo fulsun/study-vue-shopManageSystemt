@@ -59,7 +59,8 @@
       title="添加用户"
       :visible.sync="dialogVisible"
       width="50%"
-      :before-close="handleClose">
+      :before-close="handleClose"
+      @close="addDiglogClosed">
       <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="70px">
         <el-form-item label="姓名" prop="username">
           <el-input v-model="addForm.username"></el-input>
@@ -113,7 +114,10 @@ export default {
       dialogVisible: false,
       // 用户添加的表单数据
       addForm: {
-        username: ''
+        username: '',
+        mobile: '',
+        email: '',
+        password: ''
       },
       addFormRules: {
         username: [
@@ -202,7 +206,13 @@ export default {
       //   })
       //   .catch(_ => {
       //   });
+    },
+    // 监听添加用户的取消按钮
+    addDiglogClosed() {
+      // 重置表单
+      this.$refs.addFormRef.resetFields();
     }
+
   }
 }
 ;
