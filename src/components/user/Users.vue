@@ -36,7 +36,8 @@
         </el-table-column>
         <el-table-column label="操作" width="auto">
           <template v-slot="slot">
-            <el-button type="primary" icon="el-icon-edit" round size="mini">{{slot.row.id}}</el-button>
+            <el-button type="primary" icon="el-icon-edit" @click="showEditDialog(slot.row)" round size="mini">
+            </el-button>
             <el-button type="danger" icon="el-icon-delete" round size="mini"></el-button>
             <el-tooltip effect="light" content="分配角色" placement="top" :enterable="false">
               <el-button type="warning" icon="el-icon-setting" round size="mini"></el-button>
@@ -80,6 +81,28 @@
     <el-button type="primary" @click="addUser">确 定</el-button>
   </span>
     </el-dialog>
+    <el-dialog
+      title="修改用户"
+      :visible.sync="editDialogVisible"
+      width="50%"
+      :before-close="handleClose"
+      @close="editDiglogClosed">
+      <el-form :model="editForm" :rules="addFormRules" ref="editFormRef" label-width="70px">
+        <el-form-item label="姓名" prop="username">
+          <el-input v-model="editForm.username" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="手机号" prop="mobile">
+          <el-input v-model="editForm.mobile"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="editForm.email"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="editDialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="updateUser">确 定</el-button>
+  </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -105,15 +128,18 @@ export default {
       cb(new Error('清输入合法的手机号!'));
     };
     return {
+      editForm: {},
       userList: [],
       queryInfo: {
         pagenum: 1,
         pagesize: 2
       },
       total: 0,
+      editDialogVisible: false,
       dialogVisible: false,
       // 用户添加的表单数据
       addForm: {
+        id: null,
         username: '',
         mobile: '',
         email: '',
@@ -220,6 +246,26 @@ export default {
         if (res.meta.status !== 201) return this.$message.error(res.meta.msg);
         this.dialogVisible = false;
         this.$message.success('添加成功');
+        this.getUserList();
+      });
+    },
+    editDiglogClosed() {
+      // 重置表单的校验结果
+      this.$refs.editFormRef.resetFields();
+    },
+    async showEditDialog(old) {
+      this.editDialogVisible = true;
+      this.addForm = old;
+      const { data: res } = await this.$http.get(`users/${old.id}`);
+      this.editForm = res.data;
+    },
+    updateUser() {
+      this.$refs.editFormRef.validate(async(validate) => {
+        if (!validate) return;
+        const { data: res } = await this.$http.put(`users/${this.editForm.id}`, this.editForm);
+        if (res.meta.status !== 200) return this.$message.error('更新失败');
+        this.editDialogVisible = false;
+        this.$message.success('更新成功');
         this.getUserList();
       });
     }
