@@ -84,6 +84,25 @@
 <script>
 export default {
   data() {
+    // 自定义检验规则
+    // 验证邮箱的规则
+    const checkEmail = (rule, value, cb) => {
+      const regEmail = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/;
+      if (regEmail.test(value)) {
+        // 合法的输入
+        return cb();
+      }
+      cb(new Error('清输入合法的邮箱!'));
+    };
+    // 验证手机号的规则
+    const checkMobile = (rule, value, cb) => {
+      const regMobile = /^1(?:3\d|4[4-9]|5[0-35-9]|6[67]|7[013-8]|8\d|9\d)\d{8}$/;
+      if (regMobile.test(value)) {
+        // 合法的输入
+        return cb();
+      }
+      cb(new Error('清输入合法的手机号!'));
+    };
     return {
       userList: [],
       queryInfo: {
@@ -114,10 +133,16 @@ export default {
           required: true,
           message: '请填写邮箱',
           trigger: 'blur'
+        }, {
+          validator: checkEmail,
+          trigger: 'blur'
         }],
         mobile: [{
           required: true,
           message: '请填写手机号',
+          trigger: 'blur'
+        }, {
+          validator: checkMobile,
           trigger: 'blur'
         }],
         password: [
