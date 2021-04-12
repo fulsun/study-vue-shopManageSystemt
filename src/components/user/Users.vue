@@ -29,7 +29,7 @@
           <!-- slot-scope="scope"   v-model="scope.row.mg_state" -->
           <template v-slot:default="slotprops">
             <el-switch
-              v-model="slotprops.row.mg_state">
+              v-model="slotprops.row.mg_state" @change="userStatuChange(slotprops.row)">
               disabled>
             </el-switch>
           </template>
@@ -64,7 +64,7 @@ export default {
       userList: [],
       queryInfo: {
         pagenum: 1,
-        pagesize: 1
+        pagesize: 2
       },
       total: 0
     };
@@ -88,6 +88,16 @@ export default {
     handleCurrentChange(newPage) {
       this.queryInfo.pagenum = newPage;
       this.getUserList();
+    },
+    async userStatuChange(userInfo) {
+      // 使用 ``用于字符串的拼接
+      const { data: res } = await this.$http.put(`/users/${userInfo.id}/state/${userInfo.mg_state}`);
+      console.log(res);
+      if (res.meta.status !== 200) {
+        userInfo.mg_state = !userInfo.mg_state;
+        return this.$message.error('更新状态失败');
+      }
+      this.$message.success('更新状态成功');
     }
   }
 }
@@ -97,7 +107,8 @@ export default {
   .el-table {
     margin-top: 20px;
   }
-  .el-pagination{
+
+  .el-pagination {
     margin-top: 15px;
   }
 </style>
