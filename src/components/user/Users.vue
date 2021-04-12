@@ -38,7 +38,8 @@
           <template v-slot="slot">
             <el-button type="primary" icon="el-icon-edit" @click="showEditDialog(slot.row)" round size="mini">
             </el-button>
-            <el-button type="danger" icon="el-icon-delete" round size="mini"></el-button>
+            <el-button type="danger" icon="el-icon-delete" round size="mini"
+                       @click="deleteUser(slot.row.id)"></el-button>
             <el-tooltip effect="light" content="分配角色" placement="top" :enterable="false">
               <el-button type="warning" icon="el-icon-setting" round size="mini"></el-button>
             </el-tooltip>
@@ -268,6 +269,31 @@ export default {
         this.$message.success('更新成功');
         this.getUserList();
       });
+    },
+    async deleteUser(id) {
+      const isdel = await this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch((err) => {
+        return err;
+      });
+      // console.log(isdel);
+      // 判读用户操作：confirm cancel
+      if (isdel === 'confirm') {
+        const { data: res } = await this.$http.delete('users/' + id);
+        if (res.meta.status !== 200) return this.$message.error('删除失败!');
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        });
+        this.getUserList();
+      } else {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      }
     }
   }
 }
