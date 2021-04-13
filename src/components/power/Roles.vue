@@ -106,14 +106,15 @@
       <el-tree
         :data="rightsList"
         :props="treeProps"
+        ref="treeRef"
         show-checkbox
         node-key="id"
         default-expand-all
         :default-checked-keys="defKeys"
       ></el-tree>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="editRoleDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="editRoles">确 定</el-button>
+        <el-button @click="setRightDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="allotRights">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -308,6 +309,25 @@ export default {
     // 权限对话框关闭事件
     setRightDialogClosed() {
       this.defKeys = [];
+    },
+    // 分配权限
+    async allotRights(roleId) {
+      // 获得当前选中和半选中的Id
+      // ... 为展开运算符，将选择的 id 放到数组内
+      const keys = [
+        ...this.$refs.treeRef.getCheckedKeys(),
+        ...this.$refs.treeRef.getHalfCheckedKeys()
+      ];
+      console.log(keys);
+      // join() 方法用于把数组中的所有元素放入一个字符串
+      const idStr = keys.join(',');
+      const { data: res } = await this.$http.post(`roles/${this.roleId}/rights`, { rids: idStr });
+      if (res.meta.status !== 200) {
+        return this.$message.error('分配权限失败！');
+      }
+      this.$message.success('分配权限成功!');
+      this.getRolesList();
+      this.setRightDialogVisible = false;
     }
   }
 };
