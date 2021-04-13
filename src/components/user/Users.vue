@@ -34,14 +34,15 @@
             </el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="auto">
+        <el-table-column label="操作" width="200px">
           <template v-slot="slot">
             <el-button type="primary" icon="el-icon-edit" @click="showEditDialog(slot.row)" round size="mini">
             </el-button>
             <el-button type="danger" icon="el-icon-delete" round size="mini"
                        @click="deleteUser(slot.row.id)"></el-button>
             <el-tooltip effect="light" content="分配角色" placement="top" :enterable="false">
-              <el-button type="warning" icon="el-icon-setting" round size="mini"></el-button>
+              <el-button type="warning" icon="el-icon-setting" round size="mini"
+                         @click="showAssign(slot.row)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -104,6 +105,27 @@
     <el-button type="primary" @click="updateUser">确 定</el-button>
   </span>
     </el-dialog>
+    <el-dialog
+      title="分配角色"
+      :visible.sync="showAssigndialog"
+      width="50%"
+      @close="assignRoleClose"
+      :before-close="handleClose">
+      <p>用户名：{{userInfo.username}}</p>
+      <p>当前角色：{{userInfo.role_name}}</p>
+      <el-select v-model="selectRoleId" placeholder="请选择">
+        <el-option
+          v-for="item in rolesList"
+          :key="item.id"
+          :label="item.roleName"
+          :value="item.id">
+        </el-option>
+      </el-select>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="showAssigndialog = false">取 消</el-button>
+    <el-button type="primary" @click="saveRoleInfo">确 定</el-button>
+  </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -129,6 +151,10 @@ export default {
       cb(new Error('清输入合法的手机号!'));
     };
     return {
+      selectRoleId: '',
+      userInfo: {},
+      rolesList: [],
+      showAssigndialog: false,
       editForm: {},
       userList: [],
       queryInfo: {
@@ -294,6 +320,32 @@ export default {
           message: '已取消删除'
         });
       }
+    },
+    async showAssign(userInfo) {
+      this.userInfo = userInfo;
+      const { data: res } = await this.$http.get('roles');
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取角色列表失败！');
+      }
+      this.rolesList = res.data;
+      this.showAssigndialog = true;
+    },
+    assignRoleClose() {
+      this.selectRoleId = '';
+    },
+    // 分配角色
+    async saveRoleInfo() {
+      if (!this.selectRoleId) return this.$message.error('请选择要分配的角色');
+      const { data: res } = await this.$http.put(`users/${this.userInfo.id}/role`, {
+        rid: this.selectRoleId
+      });
+
+      if (res.meta.status !== 200) {
+        return this.$message.error('更新角色失败');
+      }
+      this.$message.success('更新角色成功');
+      this.getUserList();
+      this.showAssigndialog = false;
     }
   }
 }
