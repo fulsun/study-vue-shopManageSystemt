@@ -8,6 +8,10 @@ import './assets/css/global.css';
 import './assets/fonts/iconfont.css';
 // 导入 axios 依赖
 import axios from 'axios';
+import ZkTable from 'vue-table-with-tree-grid';
+
+// Vue.use(ZkTable)
+Vue.component('tree-table', ZkTable);
 
 Vue.config.productionTip = false;
 // 配置 this.$http 指向 axios
