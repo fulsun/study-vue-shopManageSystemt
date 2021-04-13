@@ -109,6 +109,7 @@
         show-checkbox
         node-key="id"
         default-expand-all
+        :default-checked-keys="defKeys"
       ></el-tree>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editRoleDialogVisible = false">取 消</el-button>
@@ -293,9 +294,16 @@ export default {
       this.rightsList = res.data;
       //   console.log(res)
       //   递归获取三级节点的id
-      // this.getLeafkeys(role, this.defKeys);
-
+      this.getLeafkeys(role, this.defKeys);
       this.setRightDialogVisible = true;
+    },
+    // 通过递归 获取角色下三级权限的 id, 并保存到defKeys数组
+    getLeafkeys(node, arr) {
+      // 没有children属性，则是三级节点
+      if (!node.children) {
+        return arr.push(node.id);
+      }
+      node.children.forEach(item => this.getLeafkeys(item, arr));
     }
   }
 };
