@@ -29,7 +29,8 @@
                 <el-row v-for="(item2,index2) in item1.children" :key="item2.id"
                         :class="[{bdtop:index2!='0'},'vcenter']">
                   <el-col :span="6">
-                    <el-tag type="success" closable @close="removeRightById(slot.row,item2.id)"> {{item2.authName}}</el-tag>
+                    <el-tag type="success" closable @close="removeRightById(slot.row,item2.id)"> {{item2.authName}}
+                    </el-tag>
                     <i class="el-icon-caret-right"></i>
                   </el-col>
                   <el-col :span="18">
@@ -57,7 +58,8 @@
             </el-button>
             <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeRoleById(slot.row.id)">删除
             </el-button>
-            <el-button type="warning" icon="el-icon-setting" size="mini">分配权限</el-button>
+            <el-button type="warning" icon="el-icon-setting" size="mini" @click="showSetRightDialog(slot.row)">分配权限
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -93,6 +95,21 @@
           <el-input v-model="editRoleForm.roleDesc"></el-input>
         </el-form-item>
       </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editRoleDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editRoles">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 分配权限 -->
+    <el-dialog title="分配权限" :visible.sync="setRightDialogVisible" width="40%" @close="addRoleDialogClosed">
+      <!-- 树形控件 node-key:选择的值用 id 标识-->
+      <el-tree
+        :data="rightsList"
+        :props="treeProps"
+        show-checkbox
+        node-key="id"
+        default-expand-all
+      ></el-tree>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editRoleDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="editRoles">确 定</el-button>
@@ -263,6 +280,22 @@ export default {
       role.children = res.data;
       //   不建议使用，会发生页面的完整渲染
       // this.getRolesList()
+    },
+    // 分配权限
+    async showSetRightDialog(role) {
+      this.roleId = role.id;
+      // 获取角色的所有权限
+      const { data: res } = await this.$http.get('rights/tree');
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取权限数据失败！');
+      }
+      //   获取权限树
+      this.rightsList = res.data;
+      //   console.log(res)
+      //   递归获取三级节点的id
+      // this.getLeafkeys(role, this.defKeys);
+
+      this.setRightDialogVisible = true;
     }
   }
 };
