@@ -101,7 +101,7 @@
       </span>
     </el-dialog>
     <!-- 分配权限 -->
-    <el-dialog title="分配权限" :visible.sync="setRightDialogVisible" width="40%" @close="addRoleDialogClosed">
+    <el-dialog title="分配权限" :visible.sync="setRightDialogVisible" width="40%" @close="setRightDialogClosed">
       <!-- 树形控件 node-key:选择的值用 id 标识-->
       <el-tree
         :data="rightsList"
@@ -304,6 +304,10 @@ export default {
         return arr.push(node.id);
       }
       node.children.forEach(item => this.getLeafkeys(item, arr));
+    },
+    // 权限对话框关闭事件
+    setRightDialogClosed() {
+      this.defKeys = [];
     }
   }
 };
