@@ -21,7 +21,7 @@
                     :class="[{bdtop:index1=='0'},'bdbuttom','vcenter']">
               <!-- 渲染一级权限 -->
               <el-col :span="5">
-                <el-tag>{{ item1.authName}}</el-tag>
+                <el-tag closable @close="removeRightById(slot.row,item1.id)">{{ item1.authName}}</el-tag>
                 <i class="el-icon-caret-right"></i>
               </el-col>
               <!--渲染二级与三级权限-->
@@ -29,11 +29,14 @@
                 <el-row v-for="(item2,index2) in item1.children" :key="item2.id"
                         :class="[{bdtop:index2!='0'},'vcenter']">
                   <el-col :span="6">
-                    <el-tag type="success"> {{item2.authName}}</el-tag>
+                    <el-tag type="success" closable @close="removeRightById(slot.row,item2.id)"> {{item2.authName}}</el-tag>
                     <i class="el-icon-caret-right"></i>
                   </el-col>
                   <el-col :span="18">
-                    <el-tag v-for="item3 in item2.children" :key="item3.id" type="warning">{{item3.authName}}</el-tag>
+                    <el-tag closable @close="removeRightById(slot.row,item3.id)" v-for="item3 in item2.children"
+                            :key="item3.id"
+                            type="warning">{{item3.authName}}
+                    </el-tag>
                   </el-col>
                 </el-row>
               </el-col>
@@ -233,6 +236,33 @@ export default {
       if (res.meta.status !== 200) return this.$message.error('删除角色失败！');
       this.$message.success('删除用户成功！');
       this.getRolesList();
+    },
+    // 根据ID删除对应的权限
+    async removeRightById(role, rightId) {
+      // 弹框提示 删除
+      const confirmResult = await this.$confirm(
+        '此操作将永久删除该权限, 是否继续?',
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      ).catch(err => err);
+      // 点击确定 返回值为：confirm
+      // 点击取消 返回值为： cancel
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消权限删除');
+      }
+      const { data: res } = await this.$http.delete(
+        `roles/${role.id}/rights/${rightId}`
+      );
+      if (res.meta.status !== 200) {
+        return this.$message.error('删除权限失败！');
+      }
+      role.children = res.data;
+      //   不建议使用，会发生页面的完整渲染
+      // this.getRolesList()
     }
   }
 };
