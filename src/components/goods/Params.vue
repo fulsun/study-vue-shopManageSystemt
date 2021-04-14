@@ -19,6 +19,7 @@
             v-model="selectedCateKeys"
             :options="cateList"
             :props="cateProps"
+            @change="handleChange"
           ></el-cascader>
         </el-col>
       </el-row>
@@ -82,13 +83,28 @@ export default {
     };
   },
   methods: {
-    //   获取所有的商品分类列表
+    // 获取所有的商品分类列表
     async getCateList() {
       const { data: res } = await this.$http.get('categories');
       if (res.meta.status !== 200) {
         return this.$message.error('获取商品数据列表失败！');
       }
       this.cateList = res.data;
+    },
+    // 级联选择框 选中变化 触发
+    handleChange() {
+      this.getParamsData();
+    },
+    // 获取参数的列表数据
+    async getParamsData() {
+      // 只允许选择三级分类：
+      // 通过数组的长度判断
+      if (this.selectedCateKeys.length !== 3) {
+        this.selectedCateKeys = [];
+        // 清空表格数据
+        this.manyTableData = [];
+        this.onlyTableData = [];
+      }
     }
   }
 };
