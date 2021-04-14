@@ -34,7 +34,17 @@
           <el-table
             :data="manyTableData" border stripe
             style="width: 100%">
-            <el-table-column type="expand"></el-table-column>
+            <el-table-column type="expand">
+              <template v-slot="scope">
+                <el-tag
+                  v-for="(item, i) in scope.row.attr_vals"
+                  :key="i"
+                  closable
+                  @close="handleClose(i, scope.row)"
+                >{{item}}
+                </el-tag>
+              </template>
+            </el-table-column>
             <el-table-column type="index" label="#"></el-table-column>
             <el-table-column
               prop="attr_name"
@@ -344,6 +354,26 @@ export default {
         this.addDialogVisible = false;
         this.getParamsData();
       });
+    },
+    // 删除对应的参数可选项
+    handleClose(i, row) {
+      row.attr_vals.splice(i, 1);
+      this.saveAttrVals(row);
+    },
+    // 将对attr_vals（Tag） 的操作 保存到数据库
+    async saveAttrVals(row) {
+      const { data: res } = await this.$http.put(
+        `categories/${this.getCateId()}/attributes/${row.attr_id}`,
+        {
+          attr_name: row.attr_name,
+          attr_sel: row.attr_sel,
+          attr_vals: row.attr_vals.join(' ')
+        }
+      );
+      if (res.meta.status !== 200) {
+        return this.$message.error('修改参数项失败！');
+      }
+      this.$message.success('修改参数项成功！');
     }
   },
   computed: {
