@@ -7,7 +7,7 @@
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
     <!--卡片区域-->
-    <el-card class="box-card">
+    <el-card>
       <!-- 搜索与添加区域一行有 24个 span-->
       <el-row :gutter="20">
         <el-col :span="6">

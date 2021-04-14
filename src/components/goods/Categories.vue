@@ -10,7 +10,7 @@
     <el-card>
       <el-row>
         <el-col>
-          <el-button type="primary">添加分类</el-button>
+          <el-button type="primary" @click="showAddCateDialog">添加分类</el-button>
         </el-col>
       </el-row>
       <tree-table border :class="['treetable']"
@@ -52,6 +52,36 @@
         :total="total">
       </el-pagination>
     </el-card>
+    <!-- 添加分类的对话框 -->
+    <el-dialog title="添加分类" :visible.sync="addCateDialogVisible" width="50%" @close="addCateDialogClosed">
+      <el-form
+        :model="addCateForm"
+        :rules="addCateFormRules"
+        ref="addCateFormRef"
+        label-width="100px"
+      >
+        <el-form-item label="分类名称：" prop="cat_name">
+          <el-input v-model="addCateForm.cat_name"></el-input>
+        </el-form-item>
+        <el-form-item label="父级分类：">
+          <!-- options：数据源 -->
+          <!-- props：指定配置对象 -->
+          <el-cascader
+            v-model="selectedKeys"
+            :options="parentCateList"
+            :props="cascaderProps"
+            @change="parentCateChanged"
+            clearable
+            filterable
+            style="width: 100%"
+          ></el-cascader>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addCateDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addCate">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -82,6 +112,8 @@ export default {
       },
       // 父级分类列表
       parentCateList: [],
+      // 选中的父级Id数组
+      selectedKeys: [],
       queryInfo: {
         type: [1, 2, 3],
         pagenum: 1,
@@ -110,14 +142,23 @@ export default {
           type: 'template',
           template: 'opt'
         }
-      ]
+      ],
+      // 指定级联选择器的配置对象
+      cascaderProps: {
+        // 配置触发选项 hover/click
+        expandTrigger: 'hover',
+        value: 'cat_id',
+        label: 'cat_name',
+        children: 'children',
+        checkStrictly: true
+      }
     };
   },
   created() {
     this.getCateList();
   },
   methods: {
-    //   获取所有的商品分类列表
+    // 获取所有的商品分类列表
     async getCateList() {
       const { data: res } = await this.$http.get('categories', {
         params: this.queryInfo
@@ -137,6 +178,62 @@ export default {
     handleCurrentChange(newPage) {
       this.queryInfo.pagenum = newPage;
       this.getCateList();
+    },
+    // 添加操作
+    showAddCateDialog() {
+      // 先获取父级分类数据
+      this.getParentCateList();
+      // 再打开对话框
+      this.addCateDialogVisible = true;
+    },
+    // 获取父级分类的数据
+    async getParentCateList() {
+      const { data: res } = await this.$http.get('categories', {
+        // 获取前 2 级的分类
+        params: { type: 2 }
+      });
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取父级分类失败！');
+      }
+      this.parentCateList = res.data;
+    },
+    // 添加分类关闭时候重置表单
+    addCateDialogClosed() {
+      this.$refs.addCateFormRef.resetFields();
+      this.selectedKeys = [];
+      this.addCateForm.cat_level = 0;
+      this.addCateForm.cat_pid = 0;
+    },
+    // 添加分类 选择项发生变化触发
+    parentCateChanged() {
+      console.log(this.selectedKeys);
+      // 如何selectKeys 数组的长度>0 说明选中父级分类
+      if (this.selectedKeys.length > 0) {
+        // 父级分类的Id
+        this.addCateForm.cat_pid = this.selectedKeys[this.selectedKeys.length - 1];
+        // 当前分类的等级
+        this.addCateForm.cat_level = this.selectedKeys.length;
+        return 0;
+      } else {
+        // 父级分类的Id
+        this.addCateForm.cat_pid = 0;
+        // 当前分类的等级
+        this.addCateForm.cat_level = 0;
+      }
+    },
+    // 添加分类
+    addCate() {
+      this.$refs.addCateFormRef.validate(async valid => {
+        if (!valid) return;
+        const { data: res } = await this.$http.post('categories', this.addCateForm);
+        if (res.meta.status !== 201) {
+          return this.$message.error('添加分类失败！');
+        }
+
+        this.$message.success('添加分类成功！');
+        this.getCateList();
+        this.addCateDialogVisible = false;
+      });
     }
   }
 };
@@ -144,5 +241,9 @@ export default {
 <style lang="less">
   .treetable {
     margin-top: 15px;;
+  }
+
+  .el-cascader-panel {
+    height: 200px
   }
 </style>
