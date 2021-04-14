@@ -20,14 +20,21 @@
             :options="cateList"
             :props="cateProps"
             @change="handleChange"
+            clearable
           ></el-cascader>
         </el-col>
       </el-row>
 
       <!-- tab页签区域 -->
-      <el-tabs v-model="activeTabsName" @tab-click="handleTabsClick" type="card">
-        <el-tab-pane label="动态参数" name="many">动态参数</el-tab-pane>
-        <el-tab-pane label="静态属性" name="only">静态属性</el-tab-pane>
+      <el-tabs v-model="activeTabsName" @tab-click="handleTabsClick">
+        <!-- 添加动态参数面板 -->
+        <el-tab-pane label="动态参数" name="many">
+          <el-button type="primary" size="medium" :disabled="isBtnDisable">添加参数</el-button>
+        </el-tab-pane>
+        <!-- 添加静态属性面板 -->
+        <el-tab-pane label="静态属性" name="only">
+          <el-button type="primary" size="medium" :disabled="isBtnDisable">添加属性</el-button>
+        </el-tab-pane>
       </el-tabs>
     </el-card>
   </div>
@@ -89,6 +96,13 @@ export default {
     };
   },
   methods: {
+    // 当前选中的三级分类Id
+    getCateId() {
+      if (this.selectedCateKeys.length === 3) {
+        return this.selectedCateKeys[2];
+      }
+      return null;
+    },
     // 获取所有的商品分类列表
     async getCateList() {
       const { data: res } = await this.$http.get('categories');
@@ -103,20 +117,55 @@ export default {
     },
     // 获取参数的列表数据
     async getParamsData() {
-      // 只允许选择三级分类：
       // 通过数组的长度判断
-      if (this.selectedCateKeys.length !== 3) {
-        this.selectedCateKeys = [];
-        // 清空表格数据
-        this.manyTableData = [];
-        this.onlyTableData = [];
+      if (this.selectedCateKeys.length === 3) {
+        //   根据所选分类的Id,和当前面板的参数, 获取对应的参数
+        const { data: res } = await this.$http.get(
+          `categories/${this.getCateId()}/attributes`,
+          {
+            params: { sel: this.activeTabsName }
+          }
+        );
+        if (res.meta.status !== 200) {
+          return this.$message.error('获取参数列表失败！');
+        }
+        console.log(res.data);
+        res.data.forEach(item => {
+          //   通过三元表达式判断attr_vals是否为空
+          item.attr_vals = item.attr_vals ? item.attr_vals.split(' ') : [];
+
+          // 控制文本框的显示与隐藏
+          item.inputVisible = false;
+          // 文本框的输入值
+          item.inputValue = '';
+        });
+        if (this.activeTabsName === 'many') {
+          this.manyTableData = res.data;
+        } else {
+          this.onlyTableData = res.data;
+        }
+      } else {
+        // 只允许选择三级分类：
+        // 通过数组的长度判断
+        if (this.selectedCateKeys.length !== 3) {
+          this.selectedCateKeys = [];
+          // 清空表格数据
+          this.manyTableData = [];
+          this.onlyTableData = [];
+        }
       }
     },
     // Tab页签点击事件的处理函数
     handleTabsClick() {
       // first second
-      console.log(this.activeTabsName);
+      // console.log(this.activeTabsName);
       this.getParamsData();
+    }
+  },
+  computed: {
+    // 不选择分类不让点击 tab 区域
+    isBtnDisable() {
+      return this.selectedCateKeys.length !== 3;
     }
   }
 };
