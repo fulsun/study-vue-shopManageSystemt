@@ -82,6 +82,23 @@
         <el-button type="primary" @click="addCate">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 编辑分类的对话框 -->
+    <el-dialog title="编辑分类" :visible.sync="editCateDialogVisible" width="50%">
+      <el-form
+        :model="editCateForm"
+        :rules="editCateFormRules"
+        ref="editCateFormRef"
+        label-width="100px"
+      >
+        <el-form-item label="分类名称：" prop="cat_name">
+          <el-input v-model="editCateForm.cat_name"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editCateDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="eidtCate">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -151,7 +168,21 @@ export default {
         label: 'cat_name',
         children: 'children',
         checkStrictly: true
-      }
+      },
+      // 编辑对话框 控制
+      editCateDialogVisible: false,
+      // 编辑分类表单验证
+      editCateFormRules: {
+        cat_name: [
+          {
+            required: true,
+            message: '请输入分类名称',
+            trigger: 'blur'
+          }
+        ]
+      },
+      // 编辑表单 绑定对象
+      editCateForm: ''
     };
   },
   created() {
@@ -233,6 +264,44 @@ export default {
         this.$message.success('添加分类成功！');
         this.getCateList();
         this.addCateDialogVisible = false;
+      });
+    },
+    // 删除分类
+    async removeCate(id) {
+      const confirmResult = await this.$confirm('此操作将永久删除该分类, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err);
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('已取消删除！');
+      }
+      const { data: res } = await this.$http.delete('categories/' + id);
+      if (res.meta.status !== 200) {
+        return this.$message.error('删除商品分类失败！');
+      }
+      this.$message.success('删除商品分类成功！');
+      this.getCateList();
+    },
+    // 显示编辑对话框
+    async showEditCateDialog(id) {
+      const { data: res } = await this.$http.get('categories/' + id);
+      if (res.meta.status !== 200) return this.$message.error('获取分类失败！');
+      this.editCateForm = res.data;
+      this.editCateDialogVisible = true;
+    },
+    // 编辑分类名
+    eidtCate() {
+      this.$refs.editCateFormRef.validate(async valid => {
+        if (!valid) return;
+        const { data: res } = await this.$http.put('categories/' + this.editCateForm.cat_id,
+          {
+            cat_name: this.editCateForm.cat_name
+          });
+        if (res.meta.status !== 200) return this.$message.error('更新分类名失败！');
+        this.$message.success('更新分类名成功！');
+        this.getCateList();
+        this.editCateDialogVisible = false;
       });
     }
   }
