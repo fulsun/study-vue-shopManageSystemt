@@ -43,6 +43,19 @@
                   @close="handleClose(i, scope.row)"
                 >{{item}}
                 </el-tag>
+                <!-- 组件上的事件绑定需要使用 native 修饰-->
+                <el-input
+                  class="input-new-tag"
+                  v-show="scope.row.inputVisible"
+                  v-model="scope.row.inputValue"
+                  ref="saveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm(scope.row)"
+                  @blur="handleInputConfirm(scope.row)"
+                >
+                </el-input>
+                <el-button v-show="!scope.row.inputVisible" size="small" @click="showInput(scope.row)">+ New Tag
+                </el-button>
               </template>
             </el-table-column>
             <el-table-column type="index" label="#"></el-table-column>
@@ -78,6 +91,30 @@
           <el-table
             :data="onlyTableData"
             style="width: 100%">
+            <el-table-column type="expand">
+              <template v-slot="scope">
+                <el-tag
+                  v-for="(item, i) in scope.row.attr_vals"
+                  :key="i"
+                  closable
+                  @close="handleClose(i, scope.row)"
+                >{{item}}
+                </el-tag>
+                <!-- 组件上的事件绑定需要使用 native 修饰-->
+                <el-input
+                  class="input-new-tag"
+                  v-show="scope.row.inputVisible"
+                  v-model="scope.row.inputValue"
+                  ref="saveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm(scope.row)"
+                  @blur="handleInputConfirm(scope.row)"
+                >
+                </el-input>
+                <el-button v-show="!scope.row.inputVisible" size="small" @click="showInput(scope.row)">+ New Tag
+                </el-button>
+              </template>
+            </el-table-column>
             <el-table-column type="index" label="#"></el-table-column>
             <el-table-column
               prop="attr_name"
@@ -240,7 +277,7 @@ export default {
         if (res.meta.status !== 200) {
           return this.$message.error('获取参数列表失败！');
         }
-        console.log(res.data);
+        // console.log(res.data);
         res.data.forEach(item => {
           //   通过三元表达式判断attr_vals是否为空
           item.attr_vals = item.attr_vals ? item.attr_vals.split(' ') : [];
@@ -355,8 +392,9 @@ export default {
         this.getParamsData();
       });
     },
-    // 删除对应的参数可选项
+    // 删除对应的参数可选项:使用更新来删除操作
     handleClose(i, row) {
+      // splice() 从数组中删除(下标为 i)，然后返回被删除的项目。0表示不删除
       row.attr_vals.splice(i, 1);
       this.saveAttrVals(row);
     },
@@ -374,6 +412,30 @@ export default {
         return this.$message.error('修改参数项失败！');
       }
       this.$message.success('修改参数项成功！');
+    },
+    // 点击按钮显示输入框
+    showInput(row) {
+      row.inputVisible = true;
+      //   让输入框自动获取焦点
+      // $nextTick方法的作用：当页面元素被重新渲染之后，才会至指定回调函数中的代码
+      // 页面是异步重置渲染，没渲染元素就获取 focus 焦点会报错，
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus();
+      });
+    },
+    // 文本框失去焦点,或者按下Enter触发
+    handleInputConfirm(row) {
+      // 输入的内容为空时，清空
+      if (row.inputValue.trim().length === 0) {
+        row.inputValue = '';
+        row.inputVisible = false;
+        return;
+      }
+      row.attr_vals.push(row.inputValue.trim());
+      row.inputValue = '';
+      row.inputVisible = false;
+      // 提交数据库，保存修改
+      this.saveAttrVals(row);
     }
   },
   computed: {
@@ -385,8 +447,12 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
   .cat_opt {
     margin: 15px 0px;
+  }
+
+  .input-new-tag {
+    width: 120px;
   }
 </style>
