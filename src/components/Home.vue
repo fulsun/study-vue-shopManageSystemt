@@ -23,7 +23,7 @@
         <div class="toggleButton" @click="toggleCallapse">|||</div>
         <!--             侧边栏菜单区域-->
         <el-menu
-          :default-active="$route.path"
+          :default-active="'/'+this.$route.path.split('/')[1]"
           :router="true"
           :collapse="iscollpase"
           :collapse-transition='false'
