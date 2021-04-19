@@ -30,6 +30,7 @@
         <!-- tab 栏-->
         <el-tabs tab-position="left" v-model="activeIndex"
                  :before-leave="beforeTabLeave"
+                 @tab-click="tabClicked"
         >
           <el-tab-pane label="基本信息" name="0">
             <el-form-item label="商品名称" prop="goods_name">
@@ -138,13 +139,23 @@ export default {
         value: 'cat_id',
         children: 'children'
       },
-      a: ''
+      // 动态参数列表数据
+      manyTableData: [],
+      // 静态属性列表数据
+      onlyTableData: []
     };
   },
   created() {
     this.getCateList();
   },
-  computed: {},
+  computed: {
+    getCateId() {
+      if (this.addForm.goods_cat.length === 3) {
+        return this.addForm.goods_cat[2];
+      }
+      return null;
+    }
+  },
   methods: {
     // 获取商品分类数据列表
     async getCateList() {
@@ -170,6 +181,37 @@ export default {
       if (odlActiveName === '0' && this.addForm.goods_cat.length !== 3) {
         this.$message.error('请先选择商品分类');
         return false;
+      }
+    },
+    // Tab标签被选中时触发
+    async tabClicked() {
+      // 访问动态参数面板
+      if (this.activeIndex === '1') {
+        const { data: res } = await this.$http.get(
+          `categories/${this.getCateId}/attributes`,
+          {
+            params: { sel: 'many' }
+          }
+        );
+        if (res.meta.status !== 200) {
+          return this.$message.error('获取动态参数列表失败！');
+        }
+        res.data.forEach(item => {
+          item.attr_vals =
+            item.attr_vals.length === 0 ? [] : item.attr_vals.split(' ');
+        });
+        this.manyTableData = res.data;
+      } else if (this.activeIndex === '2') {
+        const { data: res } = await this.$http.get(
+          `categories/${this.getCateId}/attributes`,
+          {
+            params: { sel: 'only' }
+          }
+        );
+        if (res.meta.status !== 200) {
+          return this.$message.error('获取动态参数列表失败！');
+        }
+        this.onlyTableData = res.data;
       }
     }
   }
