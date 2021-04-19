@@ -28,7 +28,9 @@
         label-position="top"
       >
         <!-- tab 栏-->
-        <el-tabs tab-position="left" v-model="activeIndex">
+        <el-tabs tab-position="left" v-model="activeIndex"
+                 :before-leave="beforeTabLeave"
+        >
           <el-tab-pane label="基本信息" name="0">
             <el-form-item label="商品名称" prop="goods_name">
               <el-input v-model="addForm.goods_name"></el-input>
@@ -65,9 +67,28 @@ import _ from 'lodash';
 
 export default {
   data() {
+    const validateNum = (rule, value, callback) => {
+      if (Number.isInteger(Number(value)) && Number(value) > 0) {
+        callback();
+      } else {
+        callback(new Error('请输入大于0的整数'));
+      }
+    };
     return {
       activeIndex: 0,
-      addForm: {},
+      addForm: {
+        goods_name: '',
+        goods_price: 0,
+        goods_weight: 0,
+        goods_number: 0,
+        // 商品所属分类数组
+        goods_cat: [],
+        // 图片的数组
+        pics: [],
+        // 商品详情描述
+        goods_introduce: '',
+        attrs: []
+      },
       addFormRules: {
         goods_name: [
           {
@@ -79,28 +100,31 @@ export default {
         goods_price: [
           {
             required: true,
-            message: '请输入商品价格',
-            trigger: 'blur'
+            message: '请输入商品价格,大于 0 且不能为负数',
+            trigger: 'blur',
+            validator: validateNum
           }
         ],
         goods_weight: [
           {
             required: true,
-            message: '请输入商品重量',
-            trigger: 'blur'
+            message: '请输入商品重量,大于 0 且不能为负数',
+            trigger: 'blur',
+            validator: validateNum
           }
         ],
         goods_number: [
           {
             required: true,
-            message: '请输入商品数量',
-            trigger: 'blur'
+            message: '请输入商品数量,大于 0 且不能为负数',
+            trigger: 'blur',
+            validator: validateNum
           }
         ],
         goods_cat: [
           {
             required: true,
-            message: '请选择商品分类',
+            message: '请选择商品分类,大于 0 且不能为负数',
             trigger: 'blur'
           }
         ]
@@ -134,6 +158,18 @@ export default {
       if (this.addForm.goods_cat.length !== 3) {
         this.addForm.goods_cat = [];
         this.$message.error('只能选择三级的分类');
+      }
+    },
+    beforeTabLeave(activeName, odlActiveName) {
+      // 未选中商品分类阻止Tab标签跳转
+      if (odlActiveName === '0' && (this.addForm.goods_name.trim() === '' || this.addForm.goods_price <= 0 ||
+        this.addForm.goods_weight <= 0 || this.addForm.goods_number <= 0)) {
+        this.$message.error('请按要求填写数据');
+        return false;
+      }
+      if (odlActiveName === '0' && this.addForm.goods_cat.length !== 3) {
+        this.$message.error('请先选择商品分类');
+        return false;
       }
     }
   }
