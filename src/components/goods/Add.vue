@@ -8,7 +8,17 @@
     </el-breadcrumb>
     <!-- 卡片视图 -->
     <el-card>
-
+      <!-- 提示 -->
+      <el-alert title="添加商品信息" type="info" center show-icon :closable="true"></el-alert>
+      <!-- 步骤条 -->
+      <el-steps :active="activeIndex - 0" finish-status="success" align-center>
+        <el-step title="基本信息"></el-step>
+        <el-step title="商品参数"></el-step>
+        <el-step title="商品属性"></el-step>
+        <el-step title="商品图片"></el-step>
+        <el-step title="商品内容"></el-step>
+        <el-step title="完成"></el-step>
+      </el-steps>
     </el-card>
   </div>
 </template>
@@ -29,4 +39,5 @@ export default {
 </script>
 
 <style lang='less' scoped>
+
 </style>

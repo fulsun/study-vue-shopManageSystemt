@@ -11,10 +11,19 @@ html, body, #app {
 }
 
 .el-card {
-  /*box-shadow: h-shadow v-shadow blur spread color inset;*/
-  /*  h-shadow	必需的。水平阴影的位置。允许负值*/
-  /*  v-shadow	必需的。垂直阴影的位置。允许负值*/
-  /*  blur	可选。模糊距离*/
-  /*  color	可选。阴影的颜色。在CSS颜色值寻找颜色值的完整列表*/
+    /*box-shadow: h-shadow v-shadow blur spread color inset;*/
+    /*  h-shadow	必需的。水平阴影的位置。允许负值*/
+    /*  v-shadow	必需的。垂直阴影的位置。允许负值*/
+    /*  blur	可选。模糊距离*/
+    /*  color	可选。阴影的颜色。在CSS颜色值寻找颜色值的完整列表*/
     box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.15) !important;
+}
+
+.el-steps {
+    margin: 15px 0;
+}
+
+.el-step__title {
+    font-size: 10px;
+    line-height: 38px;
 }
