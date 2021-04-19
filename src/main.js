@@ -9,6 +9,7 @@ import './assets/fonts/iconfont.css';
 // 导入 axios 依赖
 import axios from 'axios';
 import ZkTable from 'vue-table-with-tree-grid';
+import { formatDate } from './assets/js/data.js';
 
 // Vue.use(ZkTable)
 Vue.component('tree-table', ZkTable);
@@ -26,6 +27,7 @@ axios.interceptors.request.use(config => {
   // 在最后必须 return config
   return config;
 });
+Vue.filter('formatDate', formatDate);
 new Vue({
   router,
   render: h => h(App)
