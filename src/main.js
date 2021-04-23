@@ -10,10 +10,15 @@ import './assets/fonts/iconfont.css'
 import axios from 'axios'
 import ZkTable from 'vue-table-with-tree-grid'
 import { formatDate } from './assets/js/data.js'
+import VueQuillEditor from 'vue-quill-editor'
+// require styles
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
 
 // Vue.use(ZkTable)
 Vue.component('tree-table', ZkTable)
-
+Vue.use(VueQuillEditor)
 Vue.config.productionTip = false
 // 配置 this.$http 指向 axios
 Vue.prototype.$http = axios
