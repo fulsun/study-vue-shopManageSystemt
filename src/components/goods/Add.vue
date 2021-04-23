@@ -101,17 +101,12 @@
               <el-button size="small" type="primary">点击上传</el-button>
             </el-upload>
           </el-tab-pane>
-          <el-tab-pane label="商品内容" name="4">
-            <quill-editor
-              v-model="content"
-              ref="myQuillEditor"
-              :options="editorOption"
-              @blur="onEditorBlur($event)"
-              @focus="onEditorFocus($event)"
-              @ready="onEditorReady($event)"
-            >
-            </quill-editor
-          ></el-tab-pane>
+          <el-tab-pane label="商品内容" name="4" class="introduce">
+            <!-- 富文本编辑器 -->
+            <quill-editor v-model="addForm.goods_introduce"> </quill-editor>
+            <!-- 添加按扭 -->
+            <el-button type="primary" class="addGoodBtn">添加商品</el-button>
+          </el-tab-pane>
         </el-tabs>
       </el-form>
     </el-card>
@@ -313,5 +308,15 @@ export default {
 }
 .previewPic {
   width: 100%;
+}
+
+.introduce {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .addGoodBtn {
+    margin-top: 15px;
+  }
 }
 </style>
