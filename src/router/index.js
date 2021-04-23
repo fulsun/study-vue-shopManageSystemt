@@ -1,17 +1,17 @@
-import Vue from 'vue';
-import VueRouter from 'vue-router';
-import Login from '../components/Login.vue';
-import Home from '../components/Home.vue';
-import Welcome from '../components/Welcome.vue';
-import Users from '../components/user/Users';
-import Rights from '../components/power/rights';
-import Roles from '../components/power/Roles';
-import Categories from '../components/goods/Categories';
-import Params from '../components/goods/Params';
-import Goods from '../components/goods/List';
-import Add from '../components/goods/Add';
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import Login from '../components/Login.vue'
+import Home from '../components/Home.vue'
+import Welcome from '../components/Welcome.vue'
+import Users from '../components/user/Users'
+import Rights from '../components/power/rights'
+import Roles from '../components/power/Roles'
+import Categories from '../components/goods/Categories'
+import Params from '../components/goods/Params'
+import Goods from '../components/goods/List'
+import Add from '../components/goods/Add'
 
-Vue.use(VueRouter);
+Vue.use(VueRouter)
 
 const routes = [
   {
@@ -42,7 +42,8 @@ const routes = [
       {
         path: '/roles',
         component: Roles
-      }, {
+      },
+      {
         path: '/categories',
         component: Categories
       },
@@ -60,22 +61,22 @@ const routes = [
       }
     ]
   }
-];
+]
 
 const router = new VueRouter({
   routes
-});
+})
 
 // 挂载路由导航守卫
 router.beforeEach((to, from, next) => {
   // to 表示访问的路径
   // from 表示从哪个连接跳转
   // next 函数，直接调用表示放行, 带参数表示强制跳转
-  if (to.path === '/login') return next();
+  if (to.path === '/login') return next()
   // 获取 token
-  const token = window.sessionStorage.getItem('token');
-  if (!token) return next('/login');
-  next();
-});
+  const token = window.sessionStorage.getItem('token')
+  if (!token) return next('/login')
+  next()
+})
 
-export default router;
+export default router

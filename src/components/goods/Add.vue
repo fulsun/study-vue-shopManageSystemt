@@ -9,7 +9,13 @@
     <!-- 卡片视图 -->
     <el-card>
       <!-- 提示 -->
-      <el-alert title="添加商品信息" type="info" center show-icon :closable="true"></el-alert>
+      <el-alert
+        title="添加商品信息"
+        type="info"
+        center
+        show-icon
+        :closable="true"
+      ></el-alert>
       <!-- 步骤条 -->
       <el-steps :active="activeIndex - 0" finish-status="success" align-center>
         <el-step title="基本信息"></el-step>
@@ -28,9 +34,11 @@
         label-position="top"
       >
         <!-- tab 栏-->
-        <el-tabs tab-position="left" v-model="activeIndex"
-                 :before-leave="beforeTabLeave"
-                 @tab-click="tabClicked"
+        <el-tabs
+          tab-position="left"
+          v-model="activeIndex"
+          :before-leave="beforeTabLeave"
+          @tab-click="tabClicked"
         >
           <el-tab-pane label="基本信息" name="0">
             <el-form-item label="商品名称" prop="goods_name">
@@ -50,20 +58,34 @@
                 v-model="addForm.goods_cat"
                 :options="cateList"
                 :props="cascaderProps"
-                @change="handleChange"></el-cascader>
+                @change="handleChange"
+              ></el-cascader>
             </el-form-item>
           </el-tab-pane>
           <el-tab-pane label="商品参数" name="1">
             <!-- 渲染表单的Item项 -->
-            <el-form-item v-for="item in manyTableData" :key="item.attr_id" :label="item.attr_name">
+            <el-form-item
+              v-for="item in manyTableData"
+              :key="item.attr_id"
+              :label="item.attr_name"
+            >
               <!-- 复选框组 -->
               <el-checkbox-group v-model="item.attr_vals">
-                <el-checkbox :label="cb" v-for="(cb, i) in item.attr_vals" :key="i" border></el-checkbox>
+                <el-checkbox
+                  :label="cb"
+                  v-for="(cb, i) in item.attr_vals"
+                  :key="i"
+                  border
+                ></el-checkbox>
               </el-checkbox-group>
             </el-form-item>
           </el-tab-pane>
           <el-tab-pane label="商品属性" name="2">
-            <el-form-item :label="item.attr_name" v-for="item in onlyTableData" :key="item.attr_id">
+            <el-form-item
+              :label="item.attr_name"
+              v-for="item in onlyTableData"
+              :key="item.attr_id"
+            >
               <el-input v-model="item.attr_vals"></el-input>
             </el-form-item>
           </el-tab-pane>
@@ -76,17 +98,15 @@
 </template>
 
 <script>
-import _ from 'lodash';
-
 export default {
   data() {
     const validateNum = (rule, value, callback) => {
       if (Number.isInteger(Number(value)) && Number(value) > 0) {
-        callback();
+        callback()
       } else {
-        callback(new Error('请输入大于0的整数'));
+        callback(new Error('请输入大于0的整数'))
       }
-    };
+    }
     return {
       activeIndex: 0,
       addForm: {
@@ -155,44 +175,49 @@ export default {
       manyTableData: [],
       // 静态属性列表数据
       onlyTableData: []
-    };
+    }
   },
   created() {
-    this.getCateList();
+    this.getCateList()
   },
   computed: {
     getCateId() {
       if (this.addForm.goods_cat.length === 3) {
-        return this.addForm.goods_cat[2];
+        return this.addForm.goods_cat[2]
       }
-      return null;
+      return null
     }
   },
   methods: {
     // 获取商品分类数据列表
     async getCateList() {
-      const { data: res } = await this.$http.get('categories');
+      const { data: res } = await this.$http.get('categories')
       if (res.meta.status !== 200) {
-        return this.$message.error('获取商品列表失败！');
+        return this.$message.error('获取商品列表失败！')
       }
-      this.cateList = res.data;
+      this.cateList = res.data
     },
     handleChange() {
       if (this.addForm.goods_cat.length !== 3) {
-        this.addForm.goods_cat = [];
-        this.$message.error('只能选择三级的分类');
+        this.addForm.goods_cat = []
+        this.$message.error('只能选择三级的分类')
       }
     },
     beforeTabLeave(activeName, odlActiveName) {
       // 未选中商品分类阻止Tab标签跳转
-      if (odlActiveName === '0' && (this.addForm.goods_name.trim() === '' || this.addForm.goods_price <= 0 ||
-        this.addForm.goods_weight <= 0 || this.addForm.goods_number <= 0)) {
-        this.$message.error('请按要求填写数据');
-        return false;
+      if (
+        odlActiveName === '0' &&
+        (this.addForm.goods_name.trim() === '' ||
+          this.addForm.goods_price <= 0 ||
+          this.addForm.goods_weight <= 0 ||
+          this.addForm.goods_number <= 0)
+      ) {
+        this.$message.error('请按要求填写数据')
+        return false
       }
       if (odlActiveName === '0' && this.addForm.goods_cat.length !== 3) {
-        this.$message.error('请先选择商品分类');
-        return false;
+        this.$message.error('请先选择商品分类')
+        return false
       }
     },
     // Tab标签被选中时触发
@@ -204,35 +229,35 @@ export default {
           {
             params: { sel: 'many' }
           }
-        );
+        )
         // console.log(res);
         if (res.meta.status !== 200) {
-          return this.$message.error('获取动态参数列表失败！');
+          return this.$message.error('获取动态参数列表失败！')
         }
-        res.data.forEach(item => {
+        res.data.forEach((item) => {
           item.attr_vals =
-            item.attr_vals.length === 0 ? [] : item.attr_vals.split(' ');
-        });
-        this.manyTableData = res.data;
+            item.attr_vals.length === 0 ? [] : item.attr_vals.split(' ')
+        })
+        this.manyTableData = res.data
       } else if (this.activeIndex === '2') {
         const { data: res } = await this.$http.get(
           `categories/${this.getCateId}/attributes`,
           {
             params: { sel: 'only' }
           }
-        );
+        )
         if (res.meta.status !== 200) {
-          return this.$message.error('获取动态参数列表失败！');
+          return this.$message.error('获取动态参数列表失败！')
         }
-        this.onlyTableData = res.data;
+        this.onlyTableData = res.data
       }
     }
   }
-};
+}
 </script>
 
-<style lang='less' scoped>
-  .el-checkbox {
-    margin: 0 8px 0 0 !important;
-  }
+<style lang="less" scoped>
+.el-checkbox {
+  margin: 0 8px 0 0 !important;
+}
 </style>

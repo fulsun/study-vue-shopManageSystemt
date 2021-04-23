@@ -10,33 +10,60 @@
     <el-card>
       <el-row>
         <el-col>
-          <el-button type="primary" @click="showAddCateDialog">添加分类</el-button>
+          <el-button type="primary" @click="showAddCateDialog"
+            >添加分类</el-button
+          >
         </el-col>
       </el-row>
-      <tree-table border :class="['treetable']"
-                  :data="cateList.result"
-                  :columns="columns"
-                  :show-index="true"
-                  index-text="#"
-                  :show-row-hover='false'
-                  :selection-type="false"
-                  :expand-type="false">
+      <tree-table
+        border
+        :class="['treetable']"
+        :data="cateList.result"
+        :columns="columns"
+        :show-index="true"
+        index-text="#"
+        :show-row-hover="false"
+        :selection-type="false"
+        :expand-type="false"
+      >
         <!-- 是否有效 -->
         <template v-slot:isOk="scope">
-          <i class="el-icon-success" v-show="scope.row.cat_deleted" style="color: lightgreen"></i>
-          <i class="el-icon-error" v-show="!scope.row.cat_deleted" style="color: orangered"></i>
+          <i
+            class="el-icon-success"
+            v-show="scope.row.cat_deleted"
+            style="color: lightgreen"
+          ></i>
+          <i
+            class="el-icon-error"
+            v-show="!scope.row.cat_deleted"
+            style="color: orangered"
+          ></i>
         </template>
         <!-- 排序 -->
         <template slot="order" slot-scope="scope">
           <el-tag size="mini" v-show="scope.row.cat_level === 0">一级</el-tag>
-          <el-tag size="mini" type="success" v-show="scope.row.cat_level === 1">二级</el-tag>
-          <el-tag size="mini" type="warning" v-show="scope.row.cat_level === 2">三级</el-tag>
+          <el-tag size="mini" type="success" v-show="scope.row.cat_level === 1"
+            >二级</el-tag
+          >
+          <el-tag size="mini" type="warning" v-show="scope.row.cat_level === 2"
+            >三级</el-tag
+          >
         </template>
         <!-- 操作 -->
         <template slot="opt" slot-scope="scope">
-          <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditCateDialog(scope.row.cat_id)">编辑
+          <el-button
+            type="primary"
+            icon="el-icon-edit"
+            size="mini"
+            @click="showEditCateDialog(scope.row.cat_id)"
+            >编辑
           </el-button>
-          <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeCate(scope.row.cat_id)">删除
+          <el-button
+            type="danger"
+            icon="el-icon-delete"
+            size="mini"
+            @click="removeCate(scope.row.cat_id)"
+            >删除
           </el-button>
         </template>
       </tree-table>
@@ -49,11 +76,17 @@
         :page-sizes="[5, 10, 20, 100]"
         :page-size="queryInfo.pagesize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="total">
+        :total="total"
+      >
       </el-pagination>
     </el-card>
     <!-- 添加分类的对话框 -->
-    <el-dialog title="添加分类" :visible.sync="addCateDialogVisible" width="50%" @close="addCateDialogClosed">
+    <el-dialog
+      title="添加分类"
+      :visible.sync="addCateDialogVisible"
+      width="50%"
+      @close="addCateDialogClosed"
+    >
       <el-form
         :model="addCateForm"
         :rules="addCateFormRules"
@@ -83,7 +116,11 @@
       </span>
     </el-dialog>
     <!-- 编辑分类的对话框 -->
-    <el-dialog title="编辑分类" :visible.sync="editCateDialogVisible" width="50%">
+    <el-dialog
+      title="编辑分类"
+      :visible.sync="editCateDialogVisible"
+      width="50%"
+    >
       <el-form
         :model="editCateForm"
         :rules="editCateFormRules"
@@ -183,136 +220,149 @@ export default {
       },
       // 编辑表单 绑定对象
       editCateForm: ''
-    };
+    }
   },
   created() {
-    this.getCateList();
+    this.getCateList()
   },
   methods: {
     // 获取所有的商品分类列表
     async getCateList() {
       const { data: res } = await this.$http.get('categories', {
         params: this.queryInfo
-      });
+      })
       if (res.meta.status !== 200) {
-        return this.$message.error('获取商品数据列表失败！');
+        return this.$message.error('获取商品数据列表失败！')
       }
-      this.cateList = res.data;
-      this.total = res.data.total;
+      this.cateList = res.data
+      this.total = res.data.total
     },
     // 监听页面展示数据
     handleSizeChange(newSize) {
-      this.queryInfo.pagesize = newSize;
-      this.getCateList();
+      this.queryInfo.pagesize = newSize
+      this.getCateList()
     },
     // 监听翻页动作
     handleCurrentChange(newPage) {
-      this.queryInfo.pagenum = newPage;
-      this.getCateList();
+      this.queryInfo.pagenum = newPage
+      this.getCateList()
     },
     // 添加操作
     showAddCateDialog() {
       // 先获取父级分类数据
-      this.getParentCateList();
+      this.getParentCateList()
       // 再打开对话框
-      this.addCateDialogVisible = true;
+      this.addCateDialogVisible = true
     },
     // 获取父级分类的数据
     async getParentCateList() {
       const { data: res } = await this.$http.get('categories', {
         // 获取前 2 级的分类
         params: { type: 2 }
-      });
+      })
       if (res.meta.status !== 200) {
-        return this.$message.error('获取父级分类失败！');
+        return this.$message.error('获取父级分类失败！')
       }
-      this.parentCateList = res.data;
+      this.parentCateList = res.data
     },
     // 添加分类关闭时候重置表单
     addCateDialogClosed() {
-      this.$refs.addCateFormRef.resetFields();
-      this.selectedKeys = [];
-      this.addCateForm.cat_level = 0;
-      this.addCateForm.cat_pid = 0;
+      this.$refs.addCateFormRef.resetFields()
+      this.selectedKeys = []
+      this.addCateForm.cat_level = 0
+      this.addCateForm.cat_pid = 0
     },
     // 添加分类 选择项发生变化触发
     parentCateChanged() {
-      console.log(this.selectedKeys);
+      console.log(this.selectedKeys)
       // 如何selectKeys 数组的长度>0 说明选中父级分类
       if (this.selectedKeys.length > 0) {
         // 父级分类的Id
-        this.addCateForm.cat_pid = this.selectedKeys[this.selectedKeys.length - 1];
+        this.addCateForm.cat_pid = this.selectedKeys[
+          this.selectedKeys.length - 1
+        ]
         // 当前分类的等级
-        this.addCateForm.cat_level = this.selectedKeys.length;
-        return 0;
+        this.addCateForm.cat_level = this.selectedKeys.length
+        return 0
       } else {
         // 父级分类的Id
-        this.addCateForm.cat_pid = 0;
+        this.addCateForm.cat_pid = 0
         // 当前分类的等级
-        this.addCateForm.cat_level = 0;
+        this.addCateForm.cat_level = 0
       }
     },
     // 添加分类
     addCate() {
-      this.$refs.addCateFormRef.validate(async valid => {
-        if (!valid) return;
-        const { data: res } = await this.$http.post('categories', this.addCateForm);
+      this.$refs.addCateFormRef.validate(async (valid) => {
+        if (!valid) return
+        const { data: res } = await this.$http.post(
+          'categories',
+          this.addCateForm
+        )
         if (res.meta.status !== 201) {
-          return this.$message.error('添加分类失败！');
+          return this.$message.error('添加分类失败！')
         }
 
-        this.$message.success('添加分类成功！');
-        this.getCateList();
-        this.addCateDialogVisible = false;
-      });
+        this.$message.success('添加分类成功！')
+        this.getCateList()
+        this.addCateDialogVisible = false
+      })
     },
     // 删除分类
     async removeCate(id) {
-      const confirmResult = await this.$confirm('此操作将永久删除该分类, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).catch(err => err);
+      const confirmResult = await this.$confirm(
+        '此操作将永久删除该分类, 是否继续?',
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      ).catch((err) => err)
       if (confirmResult !== 'confirm') {
-        return this.$message.info('已取消删除！');
+        return this.$message.info('已取消删除！')
       }
-      const { data: res } = await this.$http.delete('categories/' + id);
+      const { data: res } = await this.$http.delete('categories/' + id)
       if (res.meta.status !== 200) {
-        return this.$message.error('删除商品分类失败！');
+        return this.$message.error('删除商品分类失败！')
       }
-      this.$message.success('删除商品分类成功！');
-      this.getCateList();
+      this.$message.success('删除商品分类成功！')
+      this.getCateList()
     },
     // 显示编辑对话框
     async showEditCateDialog(id) {
-      const { data: res } = await this.$http.get('categories/' + id);
-      if (res.meta.status !== 200) return this.$message.error('获取分类失败！');
-      this.editCateForm = res.data;
-      this.editCateDialogVisible = true;
+      const { data: res } = await this.$http.get('categories/' + id)
+      if (res.meta.status !== 200) return this.$message.error('获取分类失败！')
+      this.editCateForm = res.data
+      this.editCateDialogVisible = true
     },
     // 编辑分类名
     eidtCate() {
-      this.$refs.editCateFormRef.validate(async valid => {
-        if (!valid) return;
-        const { data: res } = await this.$http.put('categories/' + this.editCateForm.cat_id,
+      this.$refs.editCateFormRef.validate(async (valid) => {
+        if (!valid) return
+        const { data: res } = await this.$http.put(
+          'categories/' + this.editCateForm.cat_id,
           {
             cat_name: this.editCateForm.cat_name
-          });
-        if (res.meta.status !== 200) return this.$message.error('更新分类名失败！');
-        this.$message.success('更新分类名成功！');
-        this.getCateList();
-        this.editCateDialogVisible = false;
-      });
+          }
+        )
+        if (res.meta.status !== 200) {
+          return this.$message.error('更新分类名失败！')
+        }
+        this.$message.success('更新分类名成功！')
+        this.getCateList()
+        this.editCateDialogVisible = false
+      })
     }
   }
-};
+}
 </script>
 <style lang="less">
-  .treetable {
-    margin-top: 15px;;
-  }
+.treetable {
+  margin-top: 15px;
+}
 
-  .el-cascader-panel {
-    height: 200px
-  }
+.el-cascader-panel {
+  height: 200px;
+}
 </style>

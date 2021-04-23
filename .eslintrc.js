@@ -1,18 +1,18 @@
 module.exports = {
   root: true,
   env: {
-    node: true,
+    node: true
   },
   extends: ['plugin:vue/essential', '@vue/standard'],
   parserOptions: {
-    parser: 'babel-eslint',
+    parser: 'babel-eslint'
   },
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'prefer-const': 0, //首选cons
-    'space-before-function-paren': 0,
-  },
+    'space-before-function-paren': 0
+  }
 }
 // "no-alert": 0,//禁止使用alert confirm prompt
 //   "no-array-constructor": 2,//禁止使用数组构造器
