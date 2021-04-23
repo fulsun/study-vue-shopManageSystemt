@@ -89,11 +89,26 @@
               <el-input v-model="item.attr_vals"></el-input>
             </el-form-item>
           </el-tab-pane>
-          <el-tab-pane label="商品图片" name="3">商品图片</el-tab-pane>
+          <el-tab-pane label="商品图片" name="3">
+            <el-upload
+              :action="uploadUrl"
+              :on-preview="handlePreview"
+              :on-remove="handleRemove"
+              :headers="headers"
+              list-type="picture"
+              :on-success="handleSuccessUpload"
+            >
+              <el-button size="small" type="primary">点击上传</el-button>
+            </el-upload>
+          </el-tab-pane>
           <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
         </el-tabs>
       </el-form>
     </el-card>
+    <!-- 图片预览 -->
+    <el-dialog title="图片预览" :visible.sync="dialogVisible" width="50%">
+      <img :src="previewPath" class="previewPic" />
+    </el-dialog>
   </div>
 </template>
 
@@ -174,7 +189,15 @@ export default {
       // 动态参数列表数据
       manyTableData: [],
       // 静态属性列表数据
-      onlyTableData: []
+      onlyTableData: [],
+      // 文件上传url
+      uploadUrl: this.$http.defaults.baseURL + 'upload',
+      headers: {
+        Authorization: window.sessionStorage.getItem('token')
+      },
+      // 图片预览地址
+      previewPath: '',
+      dialogVisible: false
     }
   },
   created() {
@@ -251,6 +274,24 @@ export default {
         }
         this.onlyTableData = res.data
       }
+    },
+    // 处理图片预览
+    async handlePreview(file) {
+      this.previewPath = file.response.data.url
+      this.dialogVisible = true
+    },
+    // 处理图片删除事件
+    async handleRemove(file, fileList) {
+      const picIndex = this.addForm.pics.findIndex(
+        (item) => item.pic === file.response.data.tmp_path
+      )
+      this.addForm.pics.splice(picIndex, 1)
+    },
+    // 监听图片上传成功
+    handleSuccessUpload(res) {
+      const picInfo = { pic: res.data.tmp_path }
+      this.addForm.pics.push(picInfo)
+      console.log(this.addForm.pics)
     }
   }
 }
@@ -259,5 +300,8 @@ export default {
 <style lang="less" scoped>
 .el-checkbox {
   margin: 0 8px 0 0 !important;
+}
+.previewPic {
+  width: 100%;
 }
 </style>
