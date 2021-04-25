@@ -105,7 +105,9 @@
             <!-- 富文本编辑器 -->
             <quill-editor v-model="addForm.goods_introduce"> </quill-editor>
             <!-- 添加按扭 -->
-            <el-button type="primary" class="addGoodBtn">添加商品</el-button>
+            <el-button type="primary" class="addGoodBtn" @click="add"
+              >添加商品</el-button
+            >
           </el-tab-pane>
         </el-tabs>
       </el-form>
@@ -118,6 +120,8 @@
 </template>
 
 <script>
+import _ from 'lodash'
+
 export default {
   data() {
     const validateNum = (rule, value, callback) => {
@@ -233,16 +237,16 @@ export default {
     },
     beforeTabLeave(activeName, odlActiveName) {
       // 未选中商品分类阻止Tab标签跳转
-      if (
-        odlActiveName === '0' &&
-        (this.addForm.goods_name.trim() === '' ||
-          this.addForm.goods_price <= 0 ||
-          this.addForm.goods_weight <= 0 ||
-          this.addForm.goods_number <= 0)
-      ) {
-        this.$message.error('请按要求填写数据')
-        return false
-      }
+      // if (
+      //   odlActiveName === '0' &&
+      //   (this.addForm.goods_name.trim() === '' ||
+      //     this.addForm.goods_price <= 0 ||
+      //     this.addForm.goods_weight <= 0 ||
+      //     this.addForm.goods_number <= 0)
+      // ) {
+      //   this.$message.error('请按要求填写数据')
+      //   return false
+      // }
       if (odlActiveName === '0' && this.addForm.goods_cat.length !== 3) {
         this.$message.error('请先选择商品分类')
         return false
@@ -297,6 +301,44 @@ export default {
       const picInfo = { pic: res.data.tmp_path }
       this.addForm.pics.push(picInfo)
       console.log(this.addForm.pics)
+    },
+    // 添加商品
+    add() {
+      this.$refs.addFormRef.validate(async (validate) => {
+        // 校验失败
+        if (!validate) {
+          console.log(this.manyTableData)
+          console.log(this.onlyTableData)
+          this.$message.error('请先填写信息后重试!!!')
+        } else {
+          // 校验成功
+          this.manyTableData.forEach((item) => {
+            const temp = {
+              attr_id: item.attr_id,
+              attr_value: item.attr_vals.join(' ')
+            }
+            this.addForm.attrs.push(temp)
+          })
+          this.onlyTableData.forEach((item) => {
+            const temp = {
+              attr_id: item.attr_id,
+              attr_value: item.attr_name
+            }
+            this.addForm.attrs.push(temp)
+          })
+          // 深克隆属性
+          const form = _.cloneDeep(this.addForm)
+          form.goods_cat = form.goods_cat.join(',')
+          // 发起添加请求
+          const { data: res } = await this.$http.post('goods', form)
+          if (res.meta.status === 201) {
+            this.$router.push('/goods')
+            this.$message.success(res.meta.msg)
+          } else {
+            this.$message.error(res.meta.msg)
+          }
+        }
+      })
     }
   }
 }
