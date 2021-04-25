@@ -57,6 +57,7 @@
               type="primary"
               icon="el-icon-edit"
               size="mini"
+              @click="editById(scope.row.goods_id)"
             ></el-button>
             <el-button
               type="danger"
@@ -144,6 +145,9 @@ export default {
     },
     goAddPage() {
       this.$router.push('/goods/add')
+    },
+    editById(id) {
+      this.$router.push('/goods/edit/' + id)
     }
   }
 }

@@ -4,13 +4,13 @@
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>商品管理</el-breadcrumb-item>
-      <el-breadcrumb-item>添加商品</el-breadcrumb-item>
+      <el-breadcrumb-item>编辑商品</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 卡片视图 -->
     <el-card>
       <!-- 提示 -->
       <el-alert
-        title="添加商品信息"
+        title="编辑商品信息"
         type="info"
         center
         show-icon
@@ -91,6 +91,7 @@
           </el-tab-pane>
           <el-tab-pane label="商品图片" name="3">
             <el-upload
+              :file-list="imgList"
               :action="uploadUrl"
               :on-preview="handlePreview"
               :on-remove="handleRemove"
@@ -104,9 +105,9 @@
           <el-tab-pane label="商品内容" name="4" class="introduce">
             <!-- 富文本编辑器 -->
             <quill-editor v-model="addForm.goods_introduce"> </quill-editor>
-            <!-- 添加按扭 -->
+            <!-- 编辑按扭 -->
             <el-button type="primary" class="addGoodBtn" @click="add"
-              >添加商品</el-button
+              >编辑商品</el-button
             >
           </el-tab-pane>
         </el-tabs>
@@ -132,6 +133,7 @@ export default {
       }
     }
     return {
+      id: null,
       activeIndex: 0,
       addForm: {
         goods_name: '',
@@ -206,11 +208,15 @@ export default {
       },
       // 图片预览地址
       previewPath: '',
-      dialogVisible: false
+      dialogVisible: false,
+      imgList: []
     }
   },
   created() {
+    const url = this.$route.path.split('/')
+    this.id = url[url.length - 1]
     this.getCateList()
+    this.getGoodsInfo()
   },
   computed: {
     getCateId() {
@@ -221,6 +227,33 @@ export default {
     }
   },
   methods: {
+    // 获取商品的信息
+    async getGoodsInfo() {
+      const { data: res } = await this.$http.get('goods/' + this.id)
+      const detail = res.data
+      // 展示图片
+      const tempics = detail.pics
+      detail.pics = []
+      if (tempics.length > 0) {
+        tempics.forEach((item) => {
+          this.imgList.push({
+            url:
+              'http://127.0.0.1:8888/tmp_uploads/' +
+              item.pics_big_url.split('/goodspics/big_')[1],
+            id: item.goods_id
+          })
+          detail.pics.push({
+            pic: 'tmp_uploads/' + item.pics_big_url.split('/goodspics/big_')[1]
+          })
+        })
+      }
+      // 赋值
+      this.addForm = { ...detail }
+      // 回显分类
+      this.addForm.goods_cat = detail.goods_cat
+        .split(',')
+        .map((item) => parseInt(item))
+    },
     // 获取商品分类数据列表
     async getCateList() {
       const { data: res } = await this.$http.get('categories')
@@ -290,17 +323,25 @@ export default {
     },
     // 处理图片删除事件
     async handleRemove(file, fileList) {
-      const picIndex = this.addForm.pics.findIndex(
-        (item) => item.pic === file.response.data.tmp_path
-      )
-      this.addForm.pics.splice(picIndex, 1)
+      if (typeof file.response !== 'undefined') {
+        const picIndex = this.addForm.pics.findIndex(
+          (item) => item.pic === file.response.data.tmp_path
+        )
+        this.addForm.pics.splice(picIndex, 1)
+      } else {
+        const picIndex = this.addForm.pics.findIndex(
+          (item) =>
+            item.pic === 'tmp_uploads/' + file.url.split('/tmp_uploads/')[1]
+        )
+        this.addForm.pics.splice(picIndex, 1)
+      }
     },
     // 监听图片上传成功
     handleSuccessUpload(res) {
       const picInfo = { pic: res.data.tmp_path }
       this.addForm.pics.push(picInfo)
     },
-    // 添加商品
+    // 编辑商品
     add() {
       this.$refs.addFormRef.validate(async (validate) => {
         // 校验失败
@@ -325,13 +366,13 @@ export default {
           // 深克隆属性
           const form = _.cloneDeep(this.addForm)
           form.goods_cat = form.goods_cat.join(',')
-          // 发起添加请求
-          const { data: res } = await this.$http.post('goods', form)
-          if (res.meta.status === 201) {
+          // 发起编辑请求
+          const { data: res } = await this.$http.put('goods/' + this.id, form)
+          if (res.meta.status === 200) {
             this.$router.push('/goods')
-            this.$message.success(res.meta.msg)
+            this.$message.success('修改成功')
           } else {
-            this.$message.error(res.meta.msg)
+            this.$message.error('修改失败')
           }
         }
       })
