@@ -12,12 +12,12 @@ import ZkTable from 'vue-table-with-tree-grid'
 import { formatDate } from './assets/js/data.js'
 import VueQuillEditor from 'vue-quill-editor'
 // require styles
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
-import 'quill/dist/quill.bubble.css'
+// import 'quill/dist/quill.core.css'
+// import 'quill/dist/quill.snow.css'
+// import 'quill/dist/quill.bubble.css'
 // 导入
 import NProgress from 'nprogress'
-import 'nprogress/nprogress.css'
+// import 'nprogress/nprogress.css'
 
 // Vue.use(ZkTable)
 Vue.component('tree-table', ZkTable)
